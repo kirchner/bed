@@ -38,6 +38,7 @@ panelWidth           = tatamiWidth;
 panelDepth           = tatamiDepth;
 panelHeight          = 1;
 
+sideSlatCount        = 4;
 sideSlatWidth        = tatamiWidth;
 sideSlatHeight       = 4;
 sideSlatDepth        = 2;
@@ -81,6 +82,10 @@ postHeight           = floorGap
                        + panelHeight
                        + tatamiHeight;
 
+middlepostWidth      = 2 * bookshelfSlabWidth;
+middlepostDepth      = 10;
+middlepostHeight     = floorGap + bookshelfHeight;
+
 
 module post() {
   color(base0)
@@ -120,10 +125,25 @@ module sides() {
 
 module sideSlats() {
   color(base3) {
-    cube([sideSlatWidth, sideSlatDepth, sideSlatHeight]);
-    
-    translate([0, tatamiDepth - sideSlatDepth, 0])
-    cube([sideSlatWidth, sideSlatDepth, sideSlatHeight]);
+    for (i = [0 : sideSlatCount - 1]) {
+      translate([0, i * (tatamiDepth - sideSlatDepth) / (sideSlatCount - 1), 0])
+      cube([sideSlatWidth, sideSlatDepth, sideSlatHeight]);
+    }
+  }
+}
+
+module middlePosts() {
+  color(base2) {
+    for (i = [1 : bookshelfCount - 1]) {
+      translate([i * (standardGap + bookshelfWidth)
+                 + standardGap - bookshelfSlabWidth, 0, - middlepostHeight])
+      for (j = [1 : sideSlatCount - 2]) {
+        translate([0,
+                   j * (tatamiDepth - middlepostDepth) / (sideSlatCount - 1),
+                   0])
+        cube([middlepostWidth, middlepostDepth, middlepostHeight]);
+      }
+    }
   }
 }
 
@@ -147,6 +167,7 @@ module tatamiHolding() {
   sideSlats();
   slats();
 //  panel();
+  middlePosts();
 }
 
 
