@@ -22,14 +22,31 @@ blue    = [0.149, 0.545, 0.824];
 cyan    = [0.165, 0.631, 0.596];
 green   = [0.512, 0.6,   0    ];
 
-bedWidth             = 200;
-bedDepth             = 140;
-
-standardGap          = 0.2;
-floorGap             = 0.3;
+tatamiHeight         = 5;
+tatamiWidth          = 200;
+tatamiDepth          = 140;
 
 postWidth            = 8;
 postDepth            = 8;
+
+slatCount            = 13;
+slatWidth            = 8;
+slatHeight           = 2;
+slatDepth            = tatamiDepth;
+
+panelWidth           = tatamiWidth;
+panelDepth           = tatamiDepth;
+panelHeight          = 1;
+
+sideSlatWidth        = tatamiWidth;
+sideSlatHeight       = 4;
+sideSlatDepth        = 2;
+
+bedWidth             = tatamiWidth  +  2 * postWidth;
+bedDepth             = tatamiDepth  +  2 * postDepth;
+
+standardGap          = 0.8;
+floorGap             = 0.3;
 
 wheelHeight          = 8;
 
@@ -49,34 +66,21 @@ bookshelfFloorWidth  = (bedWidth  -  2 * postWidth
 
 bookshelfWidth       = bookshelfFloorWidth
                        +  2 * bookshelfSlabWidth;
-bookshelfDepth       = bedDepth - postDepth;
+bookshelfDepth       = bedDepth
+                       -  2 * postDepth
+                       +  sideSlabWidth
+                       -  standardGap;
 bookshelfHeight      = bookshelfFloorCount * bookshelfFloorHeight
                        +  (bookshelfFloorCount + 1) * bookshelfSlabWidth
                        +  bookshelfLedgeHeight;
 
-postHeight           = bookshelfHeight + floorGap + 0;
+postHeight           = floorGap
+                       + bookshelfHeight
+                       + sideSlatHeight
+                       + slatHeight
+                       + panelHeight
+                       + tatamiHeight;
 
-module bookshelf() {
-  color(base00)
-  translate([bookshelfSlabWidth, 0, floorGap + bookshelfLedgeHeight]) {
-    cube([bookshelfFloorWidth, bookshelfDepth, bookshelfSlabWidth]);
-
-    for (i = [1 : bookshelfFloorCount]) {
-      translate([0, 0, i * (bookshelfFloorHeight + bookshelfSlabWidth)]) {
-        cube([bookshelfFloorWidth, bookshelfFloorDepth, bookshelfSlabWidth]);
-      }
-    }
-  }
-
-  color(base01) {
-    translate([0, 0, floorGap]) {
-      cube([bookshelfSlabWidth, bookshelfFloorDepth, bookshelfHeight]);
-    }
-    translate([bookshelfSlabWidth + bookshelfFloorWidth, 0, floorGap]) {
-      cube([bookshelfSlabWidth, bookshelfFloorDepth, bookshelfHeight]);
-    }
-  }
-}
 
 module post() {
   color(base0)
@@ -103,14 +107,81 @@ module sides() {
     // back
     translate([postWidth, bedDepth - postDepth, 0])
     cube([bedWidth  -  2 * postWidth, sideSlabWidth, postHeight]);
+
+    // front
+    translate([postWidth,
+               postDepth - sideSlabWidth,
+               floorGap + bookshelfHeight + standardGap])
+    cube([bedWidth - 2 * postWidth,
+          sideSlabWidth,
+          postHeight - floorGap - bookshelfHeight - standardGap]);
   }
 }
+
+module sideSlats() {
+  color(base3) {
+    cube([sideSlatWidth, sideSlatDepth, sideSlatHeight]);
+    
+    translate([0, tatamiDepth - sideSlatDepth, 0])
+    cube([sideSlatWidth, sideSlatDepth, sideSlatHeight]);
+  }
+}
+
+module slats() {
+  color(base2) {
+    for (i = [0 : slatCount - 1]) {
+      translate([i * (tatamiWidth - slatWidth) / (slatCount - 1),
+                 0, sideSlatHeight])
+      cube([slatWidth, slatDepth, slatHeight]);
+    }
+  }
+}
+
+module panel() {
+  color(base3)
+  translate([0, 0, sideSlatHeight + slatHeight])
+  cube([panelWidth, panelDepth, panelHeigth]);
+}
+
+module tatamiHolding() {
+  sideSlats();
+  slats();
+//  panel();
+}
+
+
+
+module bookshelf() {
+  color(base00)
+  translate([bookshelfSlabWidth, 0, floorGap + bookshelfLedgeHeight]) {
+    cube([bookshelfFloorWidth, bookshelfDepth, bookshelfSlabWidth]);
+
+    for (i = [1 : bookshelfFloorCount]) {
+      translate([0, 0, i * (bookshelfFloorHeight + bookshelfSlabWidth)]) {
+        cube([bookshelfFloorWidth, bookshelfFloorDepth, bookshelfSlabWidth]);
+      }
+    }
+  }
+
+  color(base01) {
+    translate([0, 0, floorGap]) {
+      cube([bookshelfSlabWidth, bookshelfFloorDepth, bookshelfHeight]);
+    }
+    translate([bookshelfSlabWidth + bookshelfFloorWidth, 0, floorGap]) {
+      cube([bookshelfSlabWidth, bookshelfFloorDepth, bookshelfHeight]);
+    }
+  }
+}
+
 
 
 posts();
 sides();
 
-translate([postWidth + standardGap, 0, 0])
+translate([postWidth, postDepth, floorGap + bookshelfHeight + standardGap])
+tatamiHolding();
+
+translate([postWidth + standardGap, postWidth - sideSlabWidth, 0])
 for (i = [1 : bookshelfCount]) {
   translate([(i - 1) * (bookshelfWidth + standardGap), 0, 0]) bookshelf();
 }
