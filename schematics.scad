@@ -151,6 +151,7 @@ wheelHeight    = 8;
 sideSlabWidth  = 2.8;
 
 bsSlabWidth   = 1.8;
+bsThinSlabWidth = 0.4;
 bsCount       = 3;
 bsLedgeHeight = wheelHeight - floorGap;
 
@@ -276,9 +277,10 @@ module tatamiHolding() {
 //////////////////////////////////////////////////////////////////////////
 // draw one bookshelf
 //
-module bs() {
-  echo("## bookshelf");
+module bs1() {
+  echo("## bookshelf -- type 2");
 
+  // bookshelf floors
   color(base00)
   translate([bsSlabWidth, 0, floorGap + bsLedgeHeight]) {
     slab(bsDepth, bsFloorWidth, bsSlabWidth, "baw");
@@ -290,13 +292,128 @@ module bs() {
     }
   }
 
+  // bookshelf back
+  color(base1) {
+    translate([bsSlabWidth,
+               bsFloorDepth,
+               floorGap + bsLedgeHeight + bsSlabWidth])
+      slab(bsFloorWidth,
+           bsHeight - bsLedgeHeight - bsSlabWidth,
+           bsThinSlabWidth, "awb");
+  }
+
+  // sides
   color(base01) {
     translate([0, 0, floorGap]) {
-      slab(bsFloorDepth, bsHeight, bsSlabWidth, "wab");
+      slab(bsDepth, bsHeight, bsSlabWidth, "wab");
     }
     translate([bsSlabWidth + bsFloorWidth, 0, floorGap]) {
-      slab(bsFloorDepth, bsHeight, bsSlabWidth, "wab");
+      slab(bsDepth, bsHeight, bsSlabWidth, "wab");
     }
+  }
+
+  // front
+  color(base1) {
+    translate([bsSlabWidth, 0, floorGap])
+      slab(bsFloorWidth, bsLedgeHeight, bsSlabWidth, "awb");
+  }
+
+  // back
+  color(base1) {
+    translate([bsSlabWidth,
+               bsDepth - bsSlabWidth,
+               floorGap + bsLedgeHeight + bsSlabWidth])
+      slab(bsFloorWidth,
+           bsHeight - bsLedgeHeight - bsSlabWidth,
+           bsSlabWidth, "awb");
+
+    translate([bsSlabWidth,
+               bsDepth - bsSlabWidth,
+               floorGap])
+      slab(bsFloorWidth, bsLedgeHeight, bsSlabWidth, "awb");
+  }
+}
+
+module bs2() {
+  echo("## bookshelf -- type 2");
+
+  // bookshelf floors
+  color(base00)
+  translate([bsSlabWidth, 0, floorGap + bsLedgeHeight]) {
+    slab(bsDepth, bsFloorWidth, bsSlabWidth, "baw");
+
+    for (i = [1 : bsFloorCount]) {
+      translate([0, 0, i * (bsFloorHeight + bsSlabWidth)]) {
+        slab(bsFloorDepth, bsFloorWidth, bsSlabWidth, "baw");
+      }
+    }
+  }
+
+  // bookshelf back
+  color(base1) {
+    translate([bsSlabWidth,
+               bsFloorDepth,
+               floorGap + bsLedgeHeight + bsSlabWidth])
+      slab(bsFloorWidth,
+           bsHeight - bsLedgeHeight - bsSlabWidth,
+           bsThinSlabWidth, "awb");
+  }
+
+  // sides
+  color(base01) {
+    translate([0, 0, floorGap]) {
+      slab(bsFloorDepth + bsThinSlabWidth, bsHeight, bsSlabWidth, "wab");
+    }
+
+    translate([bsSlabWidth + bsFloorWidth, 0, floorGap]) {
+      slab(bsFloorDepth + bsThinSlabWidth, bsHeight, bsSlabWidth, "wab");
+    }
+
+    translate([0, bsDepth - bsFloorDepth, floorGap]) {
+      slab(bsFloorDepth + bsThinSlabWidth, bsHeight, bsSlabWidth, "wab");
+    }
+
+    translate([bsSlabWidth + bsFloorWidth,
+               bsDepth - bsFloorDepth,
+               floorGap]) {
+      slab(bsFloorDepth + bsThinSlabWidth, bsHeight, bsSlabWidth, "wab");
+    }
+  }
+
+  // front
+  color(base1) {
+    translate([bsSlabWidth, 0, floorGap])
+      slab(bsFloorWidth, bsLedgeHeight, bsSlabWidth, "awb");
+  }
+
+  // back
+  color(base1) {
+    translate([bsSlabWidth,
+               bsDepth - bsSlabWidth,
+               floorGap + bsLedgeHeight + bsSlabWidth])
+      slab(bsFloorWidth,
+           bsHeight - bsLedgeHeight - bsSlabWidth,
+           bsSlabWidth, "awb");
+
+    translate([bsSlabWidth,
+               bsDepth - bsSlabWidth,
+               floorGap])
+      slab(bsFloorWidth, bsLedgeHeight, bsSlabWidth, "awb");
+  }
+
+  // middle floor
+  color(base01) {
+    translate([bsSlabWidth + (bsFloorWidth - bsSlabWidth) / 2,
+               bsFloorDepth + bsThinSlabWidth,
+               floorGap + bsLedgeHeight + bsSlabWidth])
+      slab(bsDepth - bsFloorDepth - bsThinSlabWidth - bsSlabWidth,
+           bsFloorHeight, bsSlabWidth, "wab");
+
+    translate([bsSlabWidth + bsFloorWidth / 4,
+               bsFloorDepth + bsThinSlabWidth,
+               floorGap + bsLedgeHeight + bsSlabWidth + bsFloorHeight])
+      slab(bsDepth - bsFloorDepth - bsThinSlabWidth - bsSlabWidth,
+           bsFloorWidth / 2, bsSlabWidth, "baw");
   }
 }
 
@@ -310,9 +427,10 @@ sides();
 translate([postWidth, postDepth, floorGap + bsHeight + standardGap])
 tatamiHolding();
 
-translate([postWidth + standardGap, postWidth - sideSlabWidth, 0])
-for (i = [1 : bsCount]) {
-  translate([(i - 1) * (bsWidth + standardGap), 0, 0]) bs();
+translate([postWidth + standardGap, postWidth - sideSlabWidth, 0]) {
+  translate([0, 0, 0]) bs1();
+  translate([(bsWidth + standardGap), 0, 0]) bs2();
+  translate([2 * (bsWidth + standardGap), 0, 0]) bs1();
 }
 
 echo(str("total slab area: ", totalSlabArea, " cm^2"));
